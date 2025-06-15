@@ -219,15 +219,46 @@ def pre_game_for_2p(window, frame_cv, faces):
     pygame.draw.rect(window, BLACK, feedback_rect.inflate(20, 20))
     window.blit(face_feedback_surf, feedback_rect)
 
-## VERSUS
+## CARTOONIFY
+def cartoonify_face(face_img, k):
+    """Apply cartoonify effect to a face image."""
+
+    img = cv2.resize(face_img, (300, 300))
+    data = img.reshape((-1, 3))
+    data = np.float32(data)
+    
+    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 20, 1.0)
+    _, labels, centers = cv2.kmeans(data, k, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
+    
+    centers = np.uint8(centers)
+    segmented_data = centers[labels.flatten()]
+    segmented_image = segmented_data.reshape(img.shape)
+    
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gray_blur = cv2.medianBlur(gray, 3)
+    edges = cv2.adaptiveThreshold(gray_blur, 255, cv2.ADAPTIVE_THRESH_MEAN_C,
+                                  cv2.THRESH_BINARY, 7, 7)
+    
+    segmented_image = cv2.bilateralFilter(segmented_image, 10, 200, 200)
+    
+    edges = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
+    cartoon = cv2.bitwise_and(segmented_image, edges)
+    
+    return cartoon
+
+##VERSUS
 def draw_versus_screen(window):
-    """Displays the VS screen with captured player faces."""
+    """Displays the VS screen with captured player faces using advanced cartoonify effect."""
     window.blit(VS_IMAGE, (0, 0))
     face_size = (300, 300)
+    
     for i, p_img in enumerate([player1_face_img, player2_face_img]):
         if p_img is not None:
             p_face_rgb = cv2.cvtColor(p_img, cv2.COLOR_BGR2RGB)
-            p_face_surf = pygame.transform.scale(pygame.surfarray.make_surface(np.rot90(p_face_rgb)), face_size)
+            cartoon = cartoonify_face(p_face_rgb, k=8)
+            p_face_surf = pygame.transform.scale(
+                pygame.surfarray.make_surface(np.rot90(cartoon)), face_size
+            )
             p_face_surf = pygame.transform.flip(p_face_surf, True, False)
             p_rect = p_face_surf.get_rect(center=(WIDTH * (0.25 + i * 0.5), HEIGHT / 2))
             pygame.draw.rect(window, WHITE, p_rect.inflate(10, 10), 5)
