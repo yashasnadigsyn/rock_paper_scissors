@@ -1,0 +1,5 @@
+BACKGROUND_MUSIC=https://pixabay.com/music/main-title-friendly-town-fun-video-game-music-loop-256055/
+TYPING_SOUND=https://pixabay.com/sound-effects/keyboard-typing-sound-effect-335503/
+STARTING_IMAGES=Generated Using ChatGPT
+VERSUS_IMAGE=https://pixabay.com/illustrations/versus-design-cartoon-superhero-9380924/
+VERSUS_MUSIC=https://www.myinstants.com/en/instant/versus-34862/?utm_source=copy&utm_medium=share
