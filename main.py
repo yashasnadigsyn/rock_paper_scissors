@@ -32,7 +32,7 @@ game_state = "START_SCREEN"
 ## Game Constants
 FPS = 30
 WINNING_SCORE = 5
-VS_SCREEN_DURATION = 4000
+VS_SCREEN_DURATION = 2000
 RESULTS_SCREEN_DURATION_1P = 2000
 RESULTS_SCREEN_DURATION_2P = 2500
 DETECTION_WINDOW = 2000
@@ -46,6 +46,7 @@ PLAY_WITH_IMAGE = pygame.transform.scale(pygame.image.load(os.path.join("assets"
 VS_IMAGE = pygame.transform.scale(pygame.image.load(os.path.join("assets", "versus.jpg")), (WIDTH, HEIGHT))
 GOOD_EXAMPLE_IMG = pygame.transform.scale(pygame.image.load(os.path.join("assets", "rock_works.png")), (480, 360))
 BAD_EXAMPLE_IMG = pygame.transform.scale(pygame.image.load(os.path.join("assets", "rock_not_works.png")), (480, 360))
+HAYASAKA = pygame.transform.scale(pygame.image.load(os.path.join("assets", "yashasnadigsyn.png")), (200, 200))
 
 ## Define Fonts
 BIG_FONT = pygame.font.Font(os.path.join("assets", "font", "anton.ttf"), 80)
@@ -105,7 +106,7 @@ warning_start_time, detection_start_time = 0, 0
 p1_score_surf_2p, p2_score_surf_2p = None, None
 
 ## Credits Screen
-CREDITS_TEXT = ["CREDITS", "", "A Game by yashasnadigsyn", "", "--- MUSIC & SOUND ---", "Background Music: Cyberwave Orchestra (Pixabay)", "Typing Sound: Dragon Studio (Pixabay)", "Versus Sound: Frank2023 (myinstants.com)", "", "--- ASSETS ---", "Start/Mode Screens: Generated via ChatGPT", "Versus Image: hito stountio (Pixabay)", "Face Detection Model: OpenCV Haar Cascade", "Hand Detection Model: Ultralytics YOLOv11", "", "--- LIBRARIES ---", "Pygame", "OpenCV-Python", "Ultralytics", "NumPy", "", "Thanks for Playing!"]
+CREDITS_TEXT = ["CREDITS", "", "A Game by yashasnadigsyn", "", "", "", "LOGO_PLACEHOLDER", "", "--- MUSIC & SOUND ---", "Background Music: Cyberwave Orchestra (Pixabay)", "Typing Sound: Dragon Studio (Pixabay)", "Versus Sound: Frank2023 (myinstants.com)", "", "--- ASSETS ---", "Start/Mode Screens: Generated via ChatGPT", "Versus Image: hito stountio (Pixabay)", "Face Detection Model: OpenCV Haar Cascade", "Hand Detection Model: Ultralytics YOLOv11", "", "Thanks for Playing!"]
 rendered_credits, credits_y_pos = [], HEIGHT
 
 ## Helper function for determining winner
@@ -389,8 +390,11 @@ try:
                         credits_y_pos = HEIGHT + 100
                         rendered_credits.clear()
                         for line in CREDITS_TEXT:
-                            font = BIG_FONT if line == "CREDITS" else CREDITS_FONT
-                            rendered_credits.append((font.render(line, True, WHITE), font.render(line, True, WHITE).get_rect()))
+                            if line == "LOGO_PLACEHOLDER":
+                                rendered_credits.append((HAYASAKA, HAYASAKA.get_rect()))
+                            else:
+                                font = BIG_FONT if line == "CREDITS" else CREDITS_FONT
+                                rendered_credits.append((font.render(line, True, WHITE), font.render(line, True, WHITE).get_rect()))
                     else:
                         running = False
                 
@@ -427,7 +431,7 @@ try:
                             game_state = "VERSUS_SCREEN"; versus_screen_start_time = pygame.time.get_ticks(); vs_sound.play()
                 elif game_state == "GAME_1P":
                     if round_state_1p == 'PLAYING' and event.key == pygame.K_SPACE:
-                        results = model(frame_cv, verbose=False)[0]
+                        results = model(frame_cv, verbose=True)[0]
                         if len(results.boxes) == 1:
                             player_choice_1p = results.names[int(results.boxes[0].cls[0])].lower()
                             ai_choice_1p = random.choice(choices)
@@ -464,7 +468,7 @@ try:
 
 except Exception as e:
     print(f"An error occurred: {e}")
-    
+
 finally:
     print("Exiting...")
     pygame.quit()
